@@ -1,5 +1,6 @@
 ---
 title: "p8105_hw2_hg2596"
+name: Hilina Giday
 output: github_document
 date: "2022-10-06"
 ---
@@ -30,7 +31,7 @@ trans_ent =
 
 In the beginning of cleaning this dataset it's important to switch the **Route** variable into character for the last 8-11 since 1-7 are also character variables.
 
-# Select and Disctict
+# Select and Distinct 
 
 ```{r}
 trans_ent %>% 
@@ -180,13 +181,13 @@ pols_month_2 = read_csv("./data_2/fivethirtyeight_datasets/pols_month.csv", show
   select(year,month,everything())
 ```
 
-# Upload snp dataset 
+# Upload SNP dataset 
 
 ```{r}
 snp = read_csv("./data_2/fivethirtyeight_datasets/snp.csv", show_col_types = FALSE)
 ```
 
-# Clean snp dataset and add variables 
+# Clean SNP dataset and add variables 
 
 ```{r}
 snp_2 = read_csv("./data_2/fivethirtyeight_datasets/snp.csv", show_col_types = FALSE) %>%
@@ -223,7 +224,9 @@ unemp_3 = pivot_longer(
     names_to = "month", 
     values_to = "percent_unemployment"
     ) %>%
-  mutate(year = as.character(year))
+  mutate(year = as.character(year)) %>%
+  mutate(month = as.character(month)) %>%
+  mutate(percent_unemployment = as.double(percent_unemployment))
 
 ```
 
@@ -231,30 +234,22 @@ unemp_3 = pivot_longer(
 
 ```{r}
 merge_snp_pols = 
-  left_join(snp_2,pols_month_2, by = c("year","month"))
+  left_join(snp_2,pols_month_2, by = c("year","month")) 
 ```
 
-# Left join merge to umployment 
+# Left join Merged dataset with Unemployment 
 
 ```{r}
 final_merge = 
   left_join(merge_snp_pols, unemp_3, by = c("year", "month")) 
-
 ```
 
-```{r}
-final_merge %>%
-  pull(year) %>%
-  range(na.rm = TRUE) 
-```
-
-
-The **pols month** dataset originally had `r nrow(pols_month)` observations and `r ncol(pols_month)` variables. Key variables before cleaning was **mon** and **prez_gop**, **prez_dem**,**sen_gop** and other variables that characterize political parties. **Mon** variable was a date that was written as "mon/day/year". Cleaned this variable by separating the one **mon** variable into three separate variables: **month**, **day** and **year**. Another way we cleaned this dataset was by deleting **date**, **prez_gop**, **prez_dem** and creating a new variable **president** that used infromation from prez_gop and prez_dem. 
+The **pols month** dataset originally had `r nrow(pols_month)` observations and `r ncol(pols_month)` variables. Key variables before cleaning was **mon** and **prez_gop**, **prez_dem**,**sen_gop** and other variables that characterize political parties. **Mon** variable was a date that was written as "mon/day/year". Cleaned this variable by separating the one **mon** variable into three separate variables: **month**, **day** and **year**. Another way we cleaned this dataset was by deleting **date**, **prez_gop**, **prez_dem** and creating a new variable **president** that used infromation from **prez_gop** and **prez_dem**. 
 
 The **snp** dataset originally had `r nrow(snp)` observations and `r ncol(snp)` variables.**Snp** only had two variables, **date** and close. **Date** variable took the form of "mon/day/year", however, ever cleaning this variable was separated into three separate variables, **month** , **day** and **year**. 
 
 The **unemployment** dataset originally had `r nrow(unemp)` observations and `r ncol(unemp)` variables. The dataset was originally wide it needed to be cleaned so that it could be long format instead with three variables **year**, **month** and **percent unemployment**. 
 
-The **final_merge** dateset after the proper joining, has `r nrow(final_merge)` observations and `r ncol(final_merge)` variables.The years range from `r final_merge %>% pull(year) %>% range(na.rm = TRUE)` years. Some of the key variables in **final merge** dataset are **year**, **month**, **percent unemployment** and some variables that characterize political parties. 
+The **final_merge** dateset after the proper joining, has `r nrow(final_merge)` observations and `r ncol(final_merge)` variables.The years included are `r final_merge %>% pull(year) %>% range(na.rm = TRUE)` years. Some of the key variables in **final merge** dataset are **year**, **month**, **percent unemployment** and some variables that characterize political parties. 
 
 
