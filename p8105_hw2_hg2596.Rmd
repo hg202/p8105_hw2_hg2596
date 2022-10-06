@@ -1,0 +1,81 @@
+---
+title: "p8105_hw2_hg2596"
+output: github_document
+date: "2022-10-06"
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(dplyr)
+library(readr)
+```
+
+# Problem 2 
+
+# Import Mr.Trash Wheel 
+
+```{r}
+mtw = read_excel("./data/Trash_Wheel_Collection_Data.xlsx", sheet = "Mr_Trash_Wheel") 
+```
+
+# Clean data for Mr.Trash Wheel 
+
+```{r}
+
+mtw_2 = read_excel("./data/Trash_Wheel_Collection_Data.xlsx", sheet = "Mr_Trash_Wheel",range = cell_cols("A:N"), col_names = TRUE, col_types = NULL, trim_ws = TRUE,skip = 1, n_max = 535) %>% 
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>%
+  mutate(dumpster = as.character(dumpster)) %>%
+  mutate(year = as.character(year)) %>%
+  mutate(sports_balls = as.integer(sports_balls)) %>%
+  mutate(marker = 1) %>%
+  select(dumpster,marker,everything())
+```
+
+# Import Professor Trash Wheel 
+
+```{r}
+ptw = read_excel("./data/Trash_Wheel_Collection_Data.xlsx", sheet = "Professor_Trash_Wheel") 
+```
+
+# Clean data for Professor Trash Wheel 
+
+```{r}
+ptw_2 = read_excel("./data/Trash_Wheel_Collection_Data.xlsx", sheet = "Professor_Trash_Wheel", range = cell_cols("A:M"), col_names = TRUE, col_types = NULL, trim_ws = TRUE,skip = 1, n_max = 115) %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(month)) %>%
+  drop_na(dumpster)%>%
+  mutate(dumpster = as.character(dumpster)) %>%
+  mutate(year = as.character(year)) %>%
+  mutate(marker = 2) %>%
+  select(dumpster,marker,everything())
+```
+
+# Merge through joint 
+
+```{r}
+merge = bind_rows(mtw_2,ptw_2) 
+```
+
+# Find Professor Trash Wheel Weight of trash
+```{r}
+merge %>%
+  filter(marker == 2) %>%
+  pull(weight_tons) %>%
+  sum(na.rm = TRUE) 
+```
+
+# Find sum of sports balls 
+```{r}
+merge %>%
+  filter(year == 2020) %>%
+  pull(sports_balls) %>%
+  sum(na.rm = TRUE) 
+```
+
+This new dataset has `r nrow(merge)` observations and `r ncol(merge)` variables. Some key variables are **dumpster**, **month**, **date**, **year**, **weight(tons)**,**sports balls** and various other trash items. The **marker** variable is too help keep track of each dataset, "1" indicates it came from Mr.Trash Wheel dataset and "2" indicates it came from Professor Trash Wheel dataset. 
+
+The total weight of trash collected in Professor Trash Wheel is `r merge %>% filter(marker == 2) %>% pull(weight_tons) %>% sum(na.rm = TRUE)` tons.` 
+
+Also, the total number of sport balls `r merge %>% filter(year == 2020) %>% pull(sports_balls) %>% sum(na.rm = TRUE)`. 
