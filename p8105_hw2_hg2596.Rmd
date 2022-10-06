@@ -11,6 +11,82 @@ library(dplyr)
 library(readr)
 ```
 
+# Problem 1 
+
+#Import data and clean dataset 
+
+```{r}
+trans_ent = 
+  read_csv(
+    "./data/NYC_data.csv",
+    col_types = cols(Route8 = "c", Route9 = "c", Route10 = "c", Route11 = "c")) %>% 
+  janitor::clean_names() %>% 
+  select(
+    line, station_name, station_latitude, station_longitude, 
+    starts_with("route"), entry, exit_only, vending, entrance_type, 
+    ada) %>% 
+  mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
+```
+
+In the beginning of cleaning this dataset it's important to switch the **Route** variable into character for the last 8-11 since 1-7 are also character variables.
+
+# Select and Disctict
+
+```{r}
+trans_ent %>% 
+  select(station_name, line) %>% 
+  distinct
+```
+
+Converted the variable route from wide to long format, this helps us know things about specific routes.In the following step we use distinct function to help provide unique combinations.
+
+# Find ADA complaint stations 
+
+```{r}
+trans_ent %>% 
+  filter(ada == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
+```
+
+In order to answer how many ADA complaint stations, we filter out for ADA when true and use distinct to tell us how many are complaint. 
+
+# Proportions without vending machine 
+
+```{r}
+trans_ent %>% 
+  filter(vending == "NO") %>% 
+  pull(entry) %>% 
+  mean
+```
+
+In order to figure out which proportion of the station entrances and exits without vending machines we filterd otu for vending machine when no, and pulled out the column for enter to find the mean to be ` r trans_ent %>%filter(vending == "NO") %>% pull(entry) %>% mean`. 
+
+#Distinct Stations 
+
+```{r}
+trans_ent %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_num",
+    values_to = "route") %>% 
+  filter(route == "A") %>% 
+  select(station_name, line) %>% 
+  distinct
+
+trans_ent %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_num",
+    values_to = "route") %>% 
+  filter(route == "A", ada == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
+```
+
+In order to get distinct variables, we needed to use pivot longer. Then pull from our previous step to filter out the route for A and ada. 
+
+
 # Problem 2 
 
 # Import Mr.Trash Wheel 
