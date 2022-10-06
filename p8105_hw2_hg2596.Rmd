@@ -76,6 +76,69 @@ merge %>%
 
 This new dataset has `r nrow(merge)` observations and `r ncol(merge)` variables. Some key variables are **dumpster**, **month**, **date**, **year**, **weight(tons)**,**sports balls** and various other trash items. The **marker** variable is too help keep track of each dataset, "1" indicates it came from Mr.Trash Wheel dataset and "2" indicates it came from Professor Trash Wheel dataset. 
 
-The total weight of trash collected in Professor Trash Wheel is `r merge %>% filter(marker == 2) %>% pull(weight_tons) %>% sum(na.rm = TRUE)` tons.` 
+The total weight of trash collected in Professor Trash Wheel is `r merge %>% filter(marker == 2) %>% pull(weight_tons) %>% sum(na.rm = TRUE)` tons.Also, the total number of sport balls `r merge %>% filter(year == 2020) %>% pull(sports_balls) %>% sum(na.rm = TRUE)` from Mr.Trash in 2020.
 
-Also, the total number of sport balls `r merge %>% filter(year == 2020) %>% pull(sports_balls) %>% sum(na.rm = TRUE)`. 
+# Problem 3 
+
+# Upload Pols Month dataset
+```{r}
+pols_month = read_csv("./data_2/fivethirtyeight_datasets/pols_month.csv", show_col_types = FALSE)
+```
+
+822 obs and 9 variables 
+
+# Clean Pols Month dataset and add Variables 
+
+```{r}
+pols_month_2 = read_csv("./data_2/fivethirtyeight_datasets/pols_month.csv", show_col_types = FALSE) %>% 
+  janitor::clean_names() %>%
+  separate(mon,c("A", "B", "C")) %>%
+  select("B","C","A", everything()) %>%
+  rename(month = "B", day = "C", year = "A") %>%
+  mutate(month = month.abb[as.numeric(month)]) %>%
+  mutate(president = case_when(prez_dem == 1 ~ "dem" , 
+                   prez_gop > 0 ~ "gop",
+                   TRUE ~ "")) %>%
+  select(-prez_dem) %>%
+  select(-prez_gop) %>%
+  select(-day)%>%
+  mutate(month = as.character(month)) %>%
+  select(year,month,everything())
+```
+
+# Upload snp dataset 
+
+```{r}
+snp = read_csv("./data_2/fivethirtyeight_datasets/snp.csv", show_col_types = FALSE)
+```
+
+787 obs and 2 variables 
+
+# Clean snp dataset and add variables 
+
+```{r}
+snp_2 = read_csv("./data_2/fivethirtyeight_datasets/snp.csv", show_col_types = FALSE) %>%
+  janitor::clean_names() %>%
+  separate(date,c("A", "B", "C")) %>%
+  select("B","C","A", everything()) %>%
+  rename(month = "B", day = "C", year = "A") %>%
+  select(-day)%>%
+  mutate(year = as.integer(year)) %>%
+  mutate(month = month.abb[as.numeric(month)])%>%
+  mutate(year = if_else(year < 23, year + 2000, year +1900)) %>%
+  mutate(year = as.character(year)) %>%
+  mutate(month = as.character(month)) %>%
+  select(year,month,everything())
+```
+
+# Upload Unemployed dataset 
+```{r}
+unemp = read_csv("./data_2/fivethirtyeight_datasets/unemployment.csv", show_col_types = FALSE)
+```
+
+# Clean Unemployed dataset 
+```{r}
+unemp_2 = read_csv("./data_2/fivethirtyeight_datasets/unemployment.csv", show_col_types = FALSE) %>%
+  janitor::clean_names()
+```
+
